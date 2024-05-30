@@ -1,0 +1,86 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using publishing.Areas.Identity.Data
+
+@model publishing.Models.Product
+@inject UserManager<publishingUser> UserManager
+
+@{
+    ViewData["Title"] = "Добавление продукции";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Добавить продукцию</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" id="form" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" name="name"/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+         @*   <div class="form-group">
+                <label asp-for="Cost" class="control-label"></label>
+                <input asp-for="Cost" class="form-control" type="number" onkeydown="javascript: return event.keyCode == 69 ? false : true" />
+                <span asp-validation-for="Cost" class="text-danger"></span>
+            </div>*@
+            <div class="form-group">
+                <label asp-for="TypeProduct.Type" class="control-label"></label>
+                <select asp-for="TypeProductId" class ="form-control" asp-items="ViewBag.TypeProductId" name="typeProductId"></select>
+            </div>
+            @*<div class="form-group">
+                <label asp-for="Customer.Name" class="control-label"></label>
+                <select asp-for="CustomerId" class ="form-control" asp-items="ViewBag.CustomerId"></select>
+            </div>*@
+            <div class="form-group">
+                <label class="control-label">Макет продукции</label>
+                <input type="file" class="form-control" name="photo" id="photo" accept=".bmp, .png, .jpeg, .jpg" multiple/>
+            </div>
+             <div class="form-group">
+                <label asp-for="Description" class="control-label" style="margin-bottom:5px;"></label>
+                <textarea asp-for="Description" id="summernote" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Далее" class="btn btn-primary" onclick="selectedFile()"/>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-controller="Customers" asp-action="CustomerProducts" asp-route-emailCustomer="@UserManager.GetUserName(User)">Вернуться к списку продукций</a>
+</div>
+
+@section Scripts {
+        <script>
+            $(document).ready(function () {
+                $('#summernote').summernote({
+                    height: 200,
+                    placeholder: 'Введите описание',
+                    disableResizeEditor: true
+                });
+            });
+
+            $('#form').on('submit', function (e) {
+                if ($('#summernote').summernote('isEmpty')) {
+                    alert('Необходимо ввести описание продукции');
+                    e.preventDefault();
+                }              
+            });
+
+        $(function () {
+            $("input[type='submit']").click(function () {
+                var $fileUpload = $("input[type='file']");
+                if (parseInt($fileUpload.get(0).files.length) > 10) {
+                    alert("Вы можете загрузить максимум 10 изображений");
+                    event.preventDefault();
+                }
+            });
+        });
+        </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,50 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using publishing.Areas.Identity.Data
+
+@inject UserManager<publishingUser> UserManager
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string controller = User.IsInRole("customer") ? "Customers" : "Bookings";
+    string title = User.IsInRole("customer") ? "Получения отчёта о расходах от заказов" : "Получения отчёта о доходах с заказов";
+    ViewData["Title"] = title;
+}
+
+<h1>@title</h1>
+<hr />
+<form asp-controller="@controller" asp-action="GetReportAboutCostCompletedBookings" class="form-group">
+    <div class="form-inline">
+        <label class="control-label col-md-4">C:</label>
+        <div class="col-md-3">
+            <input type="date" name="startDate" id="startField" class="form-control" min="2000-01-01" onfocus="SetStartDate()" required />
+        </div>
+    </div>
+    <div class="form-inline">
+        <label class="control-label col-md-4">По:</label>
+        <div class="col-md-3">
+            <input type="date" name="endDate" id="datefield" class="form-control" min="2000-01-02" onfocus="SetMaxDate()" required />
+        </div>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="radioForReport" id="radio1" value="download" checked>
+        <label class="form-check-label" for="radio1">Скачать</label>
+    </div>
+    <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="radioForReport" id="radio2" value="email">
+        <label class="form-check-label" for="radio2">Отправить на почту</label>
+    </div>
+    <div class="form-group pt-3" style="margin-top: -17px;">
+        <input type="submit" value="Получить" class="btn btn-primary" onclick="CheckDifferenceBetweenDates()" />
+    </div>
+</form>
+
+<div>
+    @if (!User.IsInRole("customer"))
+    {
+        <a asp-action="Index">Вернуться к списку заказов</a>
+    }
+    else
+    {
+        <a asp-controller="Customers" asp-action="CustomerBookings" asp-route-emailCustomer="@UserManager.GetUserName(User)">Вернуться к списку заказов</a>
+    }
+</div>

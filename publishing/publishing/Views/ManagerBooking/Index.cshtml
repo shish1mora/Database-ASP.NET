@@ -1,0 +1,65 @@
+﻿@model IEnumerable<publishing.Models.Booking>
+
+@{
+    ViewData["Title"] = "Управление заказами";
+}
+<h1 style="margin-bottom: 10px;">Управление заказами</h1>
+
+
+<table class="table table-bordered table-hover" id="tabl">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Id)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Start)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Cost)
+        </th>
+        <th>
+            Действие
+        </th>
+
+    </tr>
+    @foreach (var item in Model.OrderByDescending(m=>m.Id))
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Start)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Cost)
+            </td>
+            <td style="width:370px;">
+                    <a asp-controller="Bookings" asp-action="Details" asp-route-Id="@item.Id" class="btn btn-primary" style="width:30%;margin-right:5px; display:inline-block;">Подробнее</a>
+                    <form asp-action="ChooseEmployees" style="display:inline-block; width:65%;">
+                        <div>
+                            <input type="hidden" name="bookingId" value="@item.Id" />
+                            <input type="hidden" name="bookingStatus" value="@item.Status">
+                            @{
+                                if (item.Status == "Выполняется")
+                                {
+                                    <input type="submit" value="Выполнить" class="btn btn-primary" style="width:70%" onclick="Confirm(this)" />
+                                }
+                                else
+                                {
+                                    <input type="submit" value="Зарегистрировать" style="width:70%" class="btn btn-primary"/>
+                                }
+                            }
+                         </div>
+                    </form>
+            </td>
+        </tr>
+           
+    }
+</table>

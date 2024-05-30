@@ -1,0 +1,94 @@
+﻿@using publishing.Models.ViewModels;
+
+@model CartViewModel 
+
+@{
+    ViewData["Title"] = "Корзина продукций";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int bookingId = ViewBag.bookingId;
+    double grandTotal = Math.Round(Model.GrandTotal, 2);
+    string nameButtonPrimary = bookingId == -1 ? "Создать" : "Добавить";
+    string message = bookingId == -1 ? "Вы подтверждаете создание заказа?" : $"Вы подтверждаете добавление продукции(-ий) к заказу №{bookingId}?";
+}
+
+@*<h1>Корзина продукций</h1>*@
+@if (Model.CartItems.Count > 0)
+{
+    <h1>Корзина</h1>
+    <p>
+        <a asp-controller="Customers" asp-action="SelectProducts" asp-route-bookingId="@bookingId">Выбор продукций</a>
+    </p>
+    <form asp-action="SetBooking" method="post">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Название
+                    </th>
+                    <th>
+                        Количество
+                    </th>
+                    <th>
+                        Стоимость
+                    </th>
+                    <th>
+                        Общая стоимость
+                    </th>
+                    <th>
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.CartItems.OrderBy(c => c.Product.Name))
+                {
+                    
+                    <tr>
+                        <td>
+                            @item.Product.Name
+                        </td>
+                        <td>
+                            @item.Quantity
+                        </td>
+                        <td>
+                            @Math.Round(item.Product.Cost,2)₽
+                        </td>
+                        <td>
+                            @Math.Round(Model.CartItems.Where(c=>c.Product.Id == item.Product.Id).Sum(c=>c.Quantity * c.Product.Cost),2)₽
+                        </td>
+                         <td>
+                            <a class="btn btn-primary m-0" asp-action="Add" asp-route-id="@item.Product.Id" asp-route-type="product">+</a>
+                            <a class="btn btn-primary m-0" asp-action="Decrease" asp-route-id="@item.Product.Id" asp-route-type="product" style="background-color:#0dcaf0; border-color:#0dcaf0;">-</a>
+                            <a class="btn btn-primary m-0" asp-action="Remove" asp-route-id="@item.Product.Id" asp-route-type="product" style="background-color:red;border-color:red;">Удалить</a>
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td class="text-right" colspan="5" style="font-size:20px;font-weight:bold;">Стоимость продукций: @grandTotal₽</td>
+                    <input type="hidden" name="grandTotal" value="@grandTotal">
+                    <input type="hidden" name="bookingId" value="@bookingId">
+                </tr>
+                @*<tr>
+                    <td class="text-right" colspan="4">
+                        <a class="btn btn-danger" asp-action="Clear">Очистить корзину</a>
+                        <a class="btn btn-primary" href="#">Чекаем</a>
+                    </td>
+                </tr>*@
+            </tbody>
+        </table>
+
+        @*<p class="text-right">Стоимость продукций: @Model.GrandTotal₽</p>    *@
+        <div style="display:inline">
+            <input type="submit" class="btn btn-primary" value="@nameButtonPrimary" onclick="ConfirmAction('@message')">
+            <a class="btn btn-primary" asp-action="Clear" asp-route-type="product" style="background-color:red;border-color:red;">Очистить корзину</a>
+        </div>
+    </form>
+           
+}
+else
+{
+    <h1>Ваша корзина пуста</h1>
+    <p>
+        <a asp-controller="Customers" asp-action="SelectProducts" asp-route-bookingId="@bookingId">Выбор продукций</a>
+    </p>
+}

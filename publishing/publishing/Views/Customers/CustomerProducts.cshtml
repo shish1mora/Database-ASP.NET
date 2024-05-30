@@ -1,0 +1,115 @@
+﻿@model IEnumerable<publishing.Models.Product>
+@using Microsoft.AspNetCore.Identity
+@using publishing.Areas.Identity.Data
+
+@inject UserManager<publishingUser> UserManager
+
+@{
+    ViewData["Title"] = "Список продукций";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userName = UserManager.GetUserAsync(User).Result.Email;
+}
+
+<h1>Список продукций</h1>
+
+<p>
+    <a asp-controller = "Products" asp-action="Create">Добавить продукцию</a>
+</p>
+
+
+@if (Model.Count() > 0)
+{
+    <div class="info">
+        <input id="info__body_1" class="info__switch" type="checkbox">
+        <label for="info__body_1" class="info__headline">Фильтрация данных</label>
+        <div class="info__body">
+            <form method="get" asp-action="CustomerProducts" onsubmit="CheckDifferenceBetween2Numbers('startCost','endCost')">
+                <input type="hidden" name="emailCustomer" value="@userName">
+
+                <div class="d-flex">
+                    <div class="d-inline-block">
+                        <label>Название: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="text" class="form-control" name="name">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <label>Тип: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="text" name="type" class="form-control">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <input type="submit" value="Поиск" class="btn btn-primary" style="margin-top:5px; width:230px;" />
+                    </div>
+                </div>
+
+                <div class="d-flex" style="margin-top:5px;">
+                    <div class="d-inline-block">
+                        <label>Стоимость: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <label>С: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="number" class="form-control" id="startCost" name="startCost" min="1.00" max="10000000" style="width:195px;">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <label>По: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="number" class="form-control" id="endCost" name="endCost" min="1.00" max="10000000" style="width:196px;">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <a asp-action="CustomerProducts" asp-route-emailCustomer="@userName" class="btn btn-primary" style="margin-top:5px; width:230px;">Сброс</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Cost)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TypeProduct.Type)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderBy(m => m.Name))
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Cost)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TypeProduct.Type)
+                    </td>
+                    <td>
+                        @if (!item.BookingProducts.Any(bp => bp.Booking.Status != "Ожидание"))
+                        {
+                            <a asp-controller="Products" asp-action="Edit" asp-route-id="@item.Id">Изменить</a>
+                            <span>| </span>
+                            <a asp-controller="Products" asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                            <span>| </span>
+                        }
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+

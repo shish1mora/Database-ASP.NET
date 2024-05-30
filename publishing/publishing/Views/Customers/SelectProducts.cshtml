@@ -1,0 +1,121 @@
+﻿@model IEnumerable<publishing.Models.Product>
+@using publishing.Models.ViewModels;
+@{
+    ViewData["Title"] = "Выбор продукций";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int indexProduct = 0;
+}
+
+@*<h1>Выбор продукций</h1>*@
+<div class="container p-0" style="height:40px;">
+    <div class="row pb-3">
+        <div class="col-md-9">
+            <h1>Выбор продукций</h1>
+        </div>
+        <div>
+            <a asp-controller="Products" asp-action="Create" class="btn btn-info" style="margin-top:3px;">Добавить продукцию</a>
+        </div>
+    </div>
+</div>
+
+<div style="display:flex; margin-top:70px;">
+    <div class="left-menu" style="width:22%;margin-right:40px;">
+        <div class="list-group" id="menu" style="border-radius:5px;">
+            @*//<li class="list-group-item list-group-item-action active" id="itemMenu">*@
+            @if (ViewBag.typeProduct == "")
+            {
+                <a class="list-group-item" asp-action="SelectProducts" asp-route-bookingId="@ViewBag.bookingId" style="background-color:#0dcaf0;">Все продукции</a>
+            }
+            else
+            {
+                <a class="list-group-item" asp-action="SelectProducts" asp-route-bookingId="@ViewBag.bookingId">Все продукции</a>
+            }
+            @*</li>*@
+            @foreach(string typeProduct in ViewBag.typeProducts)
+            {
+                //<li class="list-group-item list-group-item-action">
+                @if (typeProduct != ViewBag.typeProduct)
+                {
+                    <a class="list-group-item" asp-action="SelectProducts" asp-route-bookingId="@ViewBag.bookingId" asp-route-typeProduct="@typeProduct">@typeProduct</a>
+                }
+                else
+                {
+                    <a class="list-group-item" asp-action="SelectProducts" asp-route-bookingId="@ViewBag.bookingId" asp-route-typeProduct="@typeProduct" style="background-color:#0dcaf0;">@typeProduct</a>
+                }
+                //</li>
+            }
+        </div>
+        <div class="bg-success mt-3 p-3 text-white" style="margin-top:7px; border-radius:5px;">
+            @if (ViewBag.smallCartModel != null)
+            {
+                SmallCartViewModel smartCartModel = ViewBag.smallCartModel;
+                <h4>Корзина</h4>
+                <p style="margin:0">Количество продукций: <b>@smartCartModel.NumberOfItems</b></p>
+                <p style="margin:0">Общая стоимость: <b>@Math.Round(smartCartModel.TotalAmount,2)₽</b></p>
+                <a asp-controller="Cart" asp-action="Index"  class="btn btn-primary">Просмотр</a>
+                <a asp-controller="Cart" asp-action="Clear" asp-route-type="product" class="btn btn-primary" style="background-color:red;border-color:red">Очистить</a>
+            }
+            else
+            {
+                <p class="m-0">Ваша корзина пуста</p>    
+            }
+        </div>
+    </div>
+
+    <div class="row" style="width:74%;">
+        @foreach(var product in Model)
+        {
+            <div class="col-4">
+                @if (ViewBag.productsPhoto != null)
+                {
+                    List<VisualProduct> productsPhoto = ViewBag.productsPhoto;
+                    List<VisualProduct> visualProducts = new List<VisualProduct>();
+                    visualProducts.AddRange(productsPhoto.Where(p => p.ProductId == product.Id));
+                    string divId = $"carouselExampleControls_{indexProduct}";
+                    string dataBsTarget = $"#carouselExampleControls_{indexProduct}";
+                    <div id="@divId" class="carousel slide mt-4 mb-4" data-ride="carousel" style="height: 375px; width:300px; border: 1px solid rgba(0,0,0,.125); border-radius: .25rem;  box-shadow: 0 .125rem .25rem rgb(128, 128, 128) !important;">
+                        <div class="carousel-inner" style="height:375px;width:300px;">
+                            @{
+                                var first = true;
+                            }
+                            @foreach (var item in visualProducts)
+                            {
+                                <div class="carousel-item @(first?Html.Raw("active"):Html.Raw(""))">
+                                    <img src="data:image/jpeg;base64,@(Convert.ToBase64String(item.Photo))" alt="Продукция" style="height: 375px; width:300px;">
+                                </div>
+                                first = false;
+                            }
+                        </div>
+                        @if (visualProducts.Count > 1)
+                        {
+                            <button class="carousel-control-prev" type="button" data-bs-target="@dataBsTarget" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="@dataBsTarget" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        }
+                    </div>
+                }
+                <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" style="cursor:pointer;color:inherit;"><h4 style="margin-bottom:0;">@product.Name</h4></a>
+                <p style="margin:0;">Тип: @product.TypeProduct.Type</p>
+                <p style="margin-bottom:7px;">Стоимость: @Convert.ToDecimal(product.Cost)₽</p>
+                <p><a class="btn btn-primary" asp-controller="Cart" asp-action="Add" asp-route-id="@product.Id" asp-route-type="product" style="margin-top:0;">Добавить в корзину</a></p>
+            </div>
+            indexProduct++;
+        }
+
+        @if (ViewBag.totalPages > 1)
+        {
+            <div class="d-flex w-100 justify-content-center">
+                <pagination page-count="@ViewBag.totalPages" 
+                        page-target="@ViewBag.typeProduct"
+                        page-number="@ViewBag.pageNumber"
+                        page-range="@ViewBag.pageRange">
+                </pagination>
+            </div>
+        }
+    </div>
+</div>

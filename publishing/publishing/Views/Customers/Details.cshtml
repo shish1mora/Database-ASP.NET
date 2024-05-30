@@ -1,0 +1,161 @@
+﻿@model publishing.Models.ViewModels.CustomerDetailsViewModel
+
+@{
+    ViewData["Title"] = "Просмотр заказчика";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Информация о заказчике</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Customer.Name)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Customer.Name)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Customer.Phone)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Customer.Phone)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Customer.Email)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Customer.Email)
+        </dd>
+    </dl>
+</div>
+
+<div class="container p-0" style="height:40px;">
+      <div class="row pb-3">
+          <div class="col-md-9">
+                @{
+                    if (Model.Bookings.Count() != 0){<h4>Заказы</h4>}
+                    else{<h4>Заказы отсутствуют</h4>}
+                }
+          </div>
+    </div>
+ </div>
+
+@{
+    if (Model.Bookings.Count() != 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().Start)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().End)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().Status)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().Cost)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Bookings.OrderByDescending(b=> b.Id))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Start)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.End)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Cost)
+                        </td>
+                        <td>
+                            @if (item.Status == "Выполняется")
+                            {
+                                <a asp-controller="Bookings" asp-action="Edit" asp-route-id="@item.Id">Изменить</a>
+                                <span>| </span>
+                            }
+                            <a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.Id"> Подробнее </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+<div class="container p-0" style="height:40px;">
+    <div class="row pb-3">
+        <div class="col-md-9">
+            @{
+                if (Model.Products.Count() != 0)
+                {
+                    <h4 style="margin-top:3px;">Продукция</h4>
+                }
+                else
+                {
+                    <h4 style="margin-top:3px;">Продукция отсутствует</h4>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@{
+    if (Model.Products.Count() != 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Products.First().Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Products.First().Cost)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Products.First().TypeProduct.Type)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Products.OrderBy(p=> p.Name))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Cost)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TypeProduct.Type)
+                        </td>
+                        <td>
+                            <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id">Подробнее</a>         
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+<div>
+    <a asp-action="Index">Вернуться к списку заказчиков</a>
+</div>

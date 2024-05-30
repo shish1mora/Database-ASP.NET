@@ -1,0 +1,100 @@
+﻿@model publishing.Models.Employee
+
+@{
+    ViewData["Title"] = "Изменение данных о сотруднике";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Изменение данных о сотруднике</h1>
+<hr style="margin-bottom:0;"/>
+
+<div style="display:flex;">
+    <div class="row mt-3">
+        <div class="col-md-7">
+            <form asp-action="Edit" id="form" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <div class="form-group">
+                    <label asp-for="Surname" class="control-label"></label>
+                    <input asp-for="Surname" class="form-control" />
+                    <span asp-validation-for="Surname" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Middlename" class="control-label"></label>
+                    <input asp-for="Middlename" class="form-control" />
+                    <span asp-validation-for="Middlename" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Birthday" class="control-label"></label>
+                    <input asp-for="Birthday" id="datefield" min="1930-01-01" class="form-control" onfocus="SetMaxDate()" />
+                    <span asp-validation-for="Birthday" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Type" class="control-label"></label>
+                    <input asp-for="Type" class="form-control" />
+                    <span asp-validation-for="Type" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Phone" class="control-label"></label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Visual" class="control-label"></label>
+                    <input type="file" class="form-control" name="photo" id="photo" accept=".bmp, .png, .jpeg, .jpg" />
+                </div>
+                <input type="hidden" name="Visual" value="@Model.Visual" />
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label" style="margin-bottom:5px;"></label>
+                    <textarea asp-for="Description" id="summernote" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Изменить" class="btn btn-primary"/>
+                </div>
+            </form>
+            <p> <span style="color:#FFCC00;">Внимание!</span> Если введенный номер телефона или email существует в базе данных, то действие будет отменено</p>
+        </div>
+    </div>
+    @if (ViewBag.Photodata != null)
+    {
+        <div>
+            <img class="mt-4 mb-4" src="data:image/jpeg;base64,@(Convert.ToBase64String(ViewBag.Photodata))" id="cust_img">
+        </div>
+    }
+</div>
+    
+
+
+<div>
+    <a asp-action="Index">Вернуться к списку сотрудников</a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#summernote').summernote({
+                height: 200,
+                disableResizeEditor: true
+            });
+        });
+
+        $('#form').on('submit', function (e) {
+            if ($('#summernote').summernote('isEmpty')) {
+                alert('Необходимо ввести дополнительную информацию о сотруднике');
+                e.preventDefault();
+            }
+        })
+    </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

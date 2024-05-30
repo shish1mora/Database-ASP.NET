@@ -1,0 +1,93 @@
+﻿@model publishing.Models.ViewModels.LinkProductWithBookingViewModel
+@{
+    ViewData["Title"] = "Привязка к заказу";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>Привязка к заказу</h1>
+
+@{
+
+    if (Model.Bookings.Count() > 0) { 
+        <div class="form-group">
+            <label class="control-label">Введите номер заказа</label>
+            <input type="text" id="numberBooking" class="form-control" onkeyup="searchBookingInSelectBox()" style="width:30%">
+        </div>
+        <form asp-action="LinkProductWithBooking">
+            <div class="form-group">
+                <label class="control-label">Выбрать заказ</label>
+                 <select class="form-control" name="bookingId" id="selectBox" asp-items="@Model.Bookings" style="width:30%;margin-top:5px;"></select>
+             </div>
+            <div class="form-group">
+                <label asp-for="Edition" class="control-label"></label>
+                <input asp-for="Edition" name="edition" class="form-control" style="width:30%;" />
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+            </div>
+            <div class = "form-group">
+                <input type="hidden" name="productId" value="@Model.productId">
+                <input type="submit" value="Привязать" class="btn btn btn-success" />
+            </div>
+        </form>
+       
+    }
+    else
+    {
+        <h4>Заказы для выбора отсутствуют</h4>    
+    }
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+@*@section Scripts{
+
+    <script>
+
+
+
+        //$(document).on("input", function (ev) {
+        //    $('#selectBox option').each(function(){
+        //        if (this.value == $(ev.target).val()){
+        //            $('selectBox').val("123");
+        //            console.log("yes");
+        //        }
+        //        else{
+        //            console.log("ni");
+        //        }
+        //    });
+        //});
+            
+
+            //var values = $.map($('#selectBox'), function (option) { return option.value });
+            //// Проверить содержится ли значение из `input` в `select`
+            //if ( values.indexOf(value) !== -1 ) {
+
+            //    // Установить значение `select`
+            //    $('#selectBox').val(value);
+            //}
+
+        //});
+
+        //var input = document.getElementById('input');
+        //input.addEventListener('input',function(e)){
+        //    const target = e.target;
+        //    const val = target.value.trim();
+        //    alert(val);
+
+        //}
+        //// Взять значение из `input`
+        //var value = $('input[type=text]').val();
+
+        //// Получить все значения из `select` (один из многих способов)
+        //var values = $.map( $('#selectBox option'), function(option) { return option.value });
+
+        //// Проверить содержится ли значение из `input` в `select`
+        //if ( values.indexOf(value) !== -1 ) {
+
+        //    // Установить значение `select`
+        //    $('#selectBox').val(value);
+        //}
+    </script>
+}*@

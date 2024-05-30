@@ -1,0 +1,76 @@
+﻿@model IEnumerable<publishing.Models.Booking>
+
+@{
+    ViewData["Title"] = "Привязка к заказу";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Привязка к заказу</h1>
+<form method="post" class="form-group" onsubmit="CheckBoxes('Пожалуйста, выберите заказ(-ы) для привязки к типографии')">
+    @{
+        if (Model.Count() != 0)
+        {
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            Выбрать
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Id)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Start)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.End)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Status)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Cost)
+                        </th>
+                        <th>Информация о заказе</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderByDescending(m=> m.Id))
+                    {
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="check_box" name="selectedBookings" id="@item.Id" value="@item.Id">
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Start)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.End)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Status)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Cost)
+                            </td>
+                            <td style="width:250px;">
+                                <a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary">Подробнее</a>
+                                <input type="hidden" name="printHouseId" value="@ViewBag.printHouseId">
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="form-group pt-3" style="margin-top: -15px;">
+                <input type="submit" value="Привязать" class="btn btn-success" />
+            </div>
+        }
+        else
+        {
+            <h4 style ="margin-top:7px;">Заказы отсутствуют</h4>    
+        }
+    }
+</form>

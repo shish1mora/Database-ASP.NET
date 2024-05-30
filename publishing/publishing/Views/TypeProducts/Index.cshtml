@@ -1,0 +1,94 @@
+﻿@model IEnumerable<publishing.Models.TypeProduct>
+
+@{
+    ViewData["Title"] = "Список типов продукции";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Список типов продукции</h1>
+
+<p>
+    @if (User.IsInRole("admin"))
+    {
+        <a asp-action="Create">Добавить тип продукции</a>
+    }
+</p>
+
+@if (Model.Count() > 0)
+{
+    <div class="info">
+        <input id="info__body_1" class="info__switch" type="checkbox">
+        <label for="info__body_1" class="info__headline">Фильтрация данных</label>
+        <div class="info__body">
+            <form method="get" onsubmit="CheckDifferenceBetween2Numbers('startMargin','endMargin')">
+                <div class="d-flex">
+                    <div class="d-inline-block">
+                        <label>Тип: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="text" class="form-control" name="type">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <label>Наценка: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <label>С: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="number" class="form-control" id="startMargin" name="startMargin" min="1.00" max="10000000">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <label>По: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="number" class="form-control" id="endMargin" name="endMargin" min="1.00" max="10000000">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <input type="submit" value="Поиск" class="btn btn-primary" style="margin-top:5px; width:159px;" />
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <a asp-action="Index" class="btn btn-primary" style="margin-top:5px; width:159px;">Сброс</a>
+                    </div>
+                 </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Type)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Margin)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderBy(m => m.Type))
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Type)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Margin)
+                    </td>
+                    <td>
+                        @if (User.IsInRole("admin") && item.Products.Count == 0)
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a> 
+                            <span>| </span>
+                            <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                            <span>| </span>
+                        }
+                        <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a>      
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

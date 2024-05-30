@@ -1,0 +1,89 @@
+﻿@model publishing.Models.PrintingHouse
+
+@{
+    ViewData["Title"] = "Изменение данных о типографии";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Изменение данных о типографии</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" id="form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Phone" class="control-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="State" class="control-label"></label>
+                <input asp-for="State" class="form-control" />
+                <span asp-validation-for="State" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="City" class="control-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Street" class="control-label"></label>
+                <input asp-for="Street" class="form-control" />
+                <span asp-validation-for="Street" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="House" class="control-label"></label>
+                <input asp-for="House" class="form-control" />
+                <span asp-validation-for="House" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label" style="margin-bottom:5px;"></label>
+                <textarea asp-for="Description" id="summernote" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Изменить" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Вернуться к списку типографий</a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#summernote').summernote({
+                height: 200,
+                placeholder: 'Введите дополнительную информацию',
+                disableResizeEditor: true
+            });
+        });
+
+        $('#form').on('submit', function (e) {
+            if ($('#summernote').summernote('isEmpty')) {
+                alert('Необходимо ввести дополнительную информацию о сотруднике');
+                e.preventDefault();
+            }
+        });
+
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

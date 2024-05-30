@@ -1,0 +1,145 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using publishing.Areas.Identity.Data
+
+@model publishing.Models.Product
+@inject UserManager<publishingUser> UserManager
+
+@{
+    ViewData["Title"] = "Изменение данных о продукции";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Изменение данных о продукции</h1>
+@*<hr />*@
+<p>
+    <a asp-action="TransitionToSelectMaterials" asp-route-productId="@Model.Id">Выбрать материалы</a>
+</p>
+
+<div style="display:flex;">
+    <div class="row">
+        <div class="col-md-7">
+            <form asp-action="Edit" id="form" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="Cost"/>
+                <input type ="hidden" asp-for="CustomerId">
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+    @*            <div class="form-group">
+                    <label asp-for="Cost" class="control-label"></label>
+                    <input asp-for="Cost" class="form-control" type="number" onkeydown="javascript: return event.keyCode == 69 ? false : true" />
+                    <span asp-validation-for="Cost" class="text-danger"></span>
+                </div>*@
+                <div class="form-group">
+                    <label asp-for="TypeProduct.Type" class="control-label"></label>
+                    <select asp-for="TypeProductId" class="form-control" asp-items="ViewBag.TypeProductId"></select>
+                    <span asp-validation-for="TypeProductId" class="text-danger"></span>
+                </div>
+    @*            <div class="form-group">
+                    <label asp-for="Customer.Name" class="control-label"></label>
+                    <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId"></select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>*@
+                <div class="form-group">
+                    <label class="control-label">Макет продукции</label>
+                    <input type="file" class="form-control" name="photo" id="photo" accept=".bmp, .png, .jpeg, .jpg" multiple disabled />
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="radioForPhoto" id="radio1" value="add">
+                    <label class="form-check-label" for="radio1">Добавить</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="radioForPhoto" id="radio2" value="overwrite">
+                    <label class="form-check-label" for="radio2">Перезаписать</label>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label" style="margin-bottom:5px;"></label>
+                    <textarea asp-for="Description" id="summernote" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Изменить" class="btn btn-primary" onclick="SelectedFileWithRadio()"/>
+                </div>
+            </form>
+        </div>
+    </div>
+    @if (ViewBag.visualProducts != null)
+    {
+        List<byte[]> visualProducts = ViewBag.visualProducts;
+        <div id="carouselExampleControls" class="carousel slide mt-4 mb-4" data-ride="carousel" style="height: 375px; width:450px; border: 1px solid rgba(0,0,0,.125); border-radius: .25rem;  box-shadow: 0 .125rem .25rem rgb(128, 128, 128) !important;">
+            <div class="carousel-inner" style="height:375px;width:450px;">
+                @{
+                    var first = true;
+                }
+                @foreach (var item in visualProducts)
+                {
+                    <div class="carousel-item @(first?Html.Raw("active"):Html.Raw(""))">
+                        <img src="data:image/jpeg;base64,@(Convert.ToBase64String(item))" alt="Продукция" style="height: 375px; width:450px;">
+                    </div>
+                    first = false;
+                }
+            </div>
+            @if (visualProducts.Count > 1)
+            {
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            }
+        </div>
+    }
+</div>
+
+<div>
+    @if (User.IsInRole("admin"))
+    {
+        <a asp-action="Index">Вернуться к списку продукций</a>
+    }
+    else
+    {
+        <a asp-controller="Customers" asp-action="CustomerProducts" asp-route-emailCustomer="@UserManager.GetUserName(User)">Вернуться к списку продукций</a>
+    }
+</div>
+
+@section Scripts {
+     <script>
+        $(document).ready(function () {
+            $('#summernote').summernote({
+                height: 200,
+                disableResizeEditor: true
+            });
+        });
+
+        $('#form').on('submit', function (e) {
+            if ($('#summernote').summernote('isEmpty')) {
+                alert('Необходимо ввести дополнительную информацию о сотруднике');
+                e.preventDefault();
+            }
+        });
+
+        $(function () {
+            $("input[type='submit']").click(function () {
+                var $fileUpload = $("input[type='file']");
+                if (parseInt($fileUpload.get(0).files.length) > 10) {
+                    alert("Вы можете загрузить максимум 10 изображений");
+                    event.preventDefault();
+                }
+            });
+        });
+
+        var radios = document.getElementsByName('radioForPhoto');
+        for (var i = 0; i < radios.length; i++) {
+            radios[i].onchange = function () {
+                document.getElementsByName('photo')[0].disabled = false;
+            }
+        }
+    </script>       
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

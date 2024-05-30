@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Регистрация заказа";
+}
+
+<h1>Выбор даты выполнения</h1>
+
+<div class="form-group" style="margin-bottom: 10px;">
+    <label class="control-label" style="font-size:20px;">Номер заказа:</label>
+    <label class="control-label" style="font-size:20px;">@ViewBag.bookingId</label>
+</div>
+
+
+<form asp-action="Confirmation" class="form-group">
+    <div class="form-inline">
+        <label class="control-label col-md-4">Выберите дату:</label>
+        <div class="col-md-8">
+            <input type="date" name="finishDate" id="datefield" class="form-control" onfocus="SetDate()" required />
+        </div>
+    </div>
+    <div class="form-group pt-3" style="margin-top: -17px;">
+        @{
+            int[] employees = ViewBag.employees;
+
+            for (int i = 0; i < employees.Length; i++)
+            {
+                <input type="hidden" name="employees" value="@employees[i]" />
+            }
+        }
+        <input type="hidden" name="bookingId" value="@ViewBag.bookingId" />
+        <input type="hidden" name="printHouseId" value="@ViewBag.printHouseId" />
+        <input type="submit" value="Выбрать" class="btn btn-primary" />
+    </div>
+</form>

@@ -1,0 +1,304 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using publishing.Areas.Identity.Data
+
+@model publishing.Models.ViewModels.ProductDetailsViewModel
+@inject UserManager<publishingUser> UserManager
+
+@{
+    ViewData["Title"] = "Просмотр продукции";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string product = $"\"{Model.Product.Name}\"";
+}
+
+<h1>Информация о продукции</h1>
+<hr style="margin-bottom:0;"/>
+
+<div style="display:flex;">
+    @if (ViewBag.visualProducts != null)
+    {
+        List<byte[]> visualProducts = ViewBag.visualProducts;
+        <div id="carouselExampleControls" class="carousel slide mt-4 mb-4" data-ride="carousel" style="height: 375px; width:450px; border: 1px solid rgba(0,0,0,.125); border-radius: .25rem;  box-shadow: 0 .125rem .25rem rgb(128, 128, 128) !important;">
+            <div class="carousel-inner" style="height:375px;width:450px;">
+                @{
+                    var first = true;
+                }
+                @foreach (var item in visualProducts)
+                {
+                    <div class="carousel-item @(first?Html.Raw("active"):Html.Raw(""))">
+                        <img src="data:image/jpeg;base64,@(Convert.ToBase64String(item))" alt="Продукция" style="height: 375px; width:450px;">
+                    </div>
+                    first = false;
+                }
+            </div>
+            @if (visualProducts.Count > 1)
+            {
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+                </button>
+            }
+        </div>
+    }
+    <dl class="row mt-4" style="margin-left:4px;">
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Product.Name)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Product.Name)
+        </dd>
+        <dt class="col-sm-3">
+          @Html.DisplayNameFor(model => model.Product.TypeProduct.Type)
+        </dt>
+       @if (!User.IsInRole("customer"))
+        {
+            <a asp-controller="TypeProducts" asp-action="Details" asp-route-id="@Model.Product.TypeProduct.Id" class="col-sm-7" style="cursor:pointer; color:inherit">
+                @Html.DisplayFor(model => model.Product.TypeProduct.Type)
+            </a>
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Product.Customer.Name)
+            </dt>
+            <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Product.Customer.Id" class="col-sm-7" style="cursor:pointer; color:inherit">
+                @Html.DisplayFor(model => model.Product.Customer.Name)
+            </a>
+        }
+        else
+        {
+            <dd class="col-sm-7">
+                @Html.DisplayFor( model => model.Product.TypeProduct.Type)
+            </dd>
+        }
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Product.Cost)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Product.Cost)
+        </dd>
+        <dt style="margin-bottom:10px;">
+            @Html.DisplayNameFor(model => model.Product.Description)
+        </dt>
+        <dd>
+            <textarea asp-for="Product.Description" id="summernote" class="form-control"></textarea>
+        </dd>
+    </dl>
+</div>
+
+<div class="container p-0" style="height:40px;">
+    <div class="row pb-3">
+        <div class="col-md-9">
+            @{
+                if (Model.BookingProducts.Count != 0)
+                {
+                    <h4 style="margin-top:3px;">Заказы</h4>
+                }
+                else
+                {
+                    <h4 style="margin-top:3px;">Заказы отсутствуют</h4>
+                }
+            }
+        </div>
+        @if (User.IsInRole("customer"))
+        {
+            <div class="col-md-3 text-end">
+                <a asp-action="LinkProductWithBooking" asp-route-customerId="@Model.Product.Customer.Id" asp-route-productId="@Model.Product.Id" class="btn btn-info" style="margin-top:5px;">Привязать к заказу</a>
+            </div>
+        }
+    </div>
+</div>
+
+@{
+    if (Model.BookingProducts.Count != 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BookingProducts.First().Booking.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BookingProducts.First().Booking.Start)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BookingProducts.First().Booking.End)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BookingProducts.First().Booking.Status)
+                    </th>
+                    <th>
+                        Тираж 
+                    </th>
+                    <th>
+                        Стоимость в заказе
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.BookingProducts.First().Booking.Cost)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.BookingProducts.OrderByDescending(bp => bp.Booking.Id))
+                {
+                    Model.Cost = Model.Product.Cost * item.Edition;
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Booking.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Booking.Start)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Booking.End)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Booking.Status)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem=> item.Edition)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem=> Model.Cost)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Booking.Cost)
+                        </td>
+                        <td>
+                            @if (!User.IsInRole("customer") && item.Booking.Status == "Выполняется")
+                            {
+                                <a asp-controller="Bookings" asp-action="Edit" asp-route-id="@item.Booking.Id">Изменить</a>
+                                <span>| </span>
+                            }
+                            <a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.Booking.Id">Подробнее</a>
+
+                            @if (item.Booking.Status == "Ожидание" && User.IsInRole("customer"))
+                            {
+                                <span>| </span>
+                                <a asp-controller="Bookings" asp-action="Edit" asp-route-id="@item.Booking.Id">Изменить</a>
+                                <span>| </span>
+                                <a asp-controller="Bookings" asp-action="Delete" asp-route-id="@item.Booking.Id">Удалить</a>
+                                <span>| </span>
+                                <a asp-controller="Bookings" asp-action="UnpinProduct" asp-route-bookingId="@item.Booking.Id" asp-route-productId="@Model.Product.Id" onclick="ConfirmAction('Вы подтверждаете открепление продукции @product от заказа №@item.Booking.Id? Если продукция является единственной в заказе, то действие будет отменено')">Открепить</a>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+<div class="container p-0" style="height:40px; margin-top:10px;">
+    <div class="row pb-3">
+        <div class="col-md-9">
+            <h4 style="margin-top:3px;">Материалы</h4>
+        </div>
+        @if (User.IsInRole("customer") && !Model.BookingProducts.Any(bp => bp.Booking.Status != "Ожидание"))
+        {
+            <div class="col-md-3 text-end">
+                <a asp-action="TransitionToSelectMaterials" asp-route-productId="@Model.Product.Id" class="btn btn-info" style="margin-top:5px;">Добавить материалы</a>
+            </div>
+        }
+    </div>
+</div>
+
+<table class="table" id="materials">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductMaterials.First().Material.Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductMaterials.First().Material.Color)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductMaterials.First().Material.Size)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductMaterials.First().Material.Cost)
+            </th>
+            <th>
+                Количество
+            </th>
+            <th>
+                Стоимость в продукции
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ProductMaterials.OrderBy(m => m.Material.Type))
+        {
+            Model.Cost = item.CountMaterials * item.Material.Cost;
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Material.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Material.Color)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Material.Size)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Material.Cost)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CountMaterials)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => Model.Cost)
+                </td>
+                <td>
+                    @if (User.IsInRole("admin") && Model.ProductMaterials.Count == 0)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Изменить</a>   
+                        <span>| </span>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Удалить</a>
+                        <span>| </span>
+                    }
+                    @if (!User.IsInRole("customer"))
+                    {
+                        <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+                    }
+                    @if (!Model.BookingProducts.Any(bp => bp.Booking.Status != "Ожидание") && User.IsInRole("customer"))
+                    {                       
+                        <a asp-action="UnpinMaterial" asp-route-productId ="@Model.Product.Id" asp-route-materialId="@item.Material.Id" onclick="ConfirmUnpinFromTable('materials', 'Вы подтверждаете открепление материала @item.Material.Type от продукции @product?','Действие отменено. Продукция создаётся с использованием как минимум одного материала')">Открепить</a>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    @if (!Model.BookingProducts.Any(bp => bp.Booking.Status != "Ожидание") && User.IsInRole("customer"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Product.Id">Изменнение данных о продукции</a>
+        <span>| </span>
+    }
+    @if (!User.IsInRole("customer"))
+    {
+        <a asp-action="Index">Вернуться к списку продукций</a>
+    }
+    else
+    {
+        <a asp-controller="Customers" asp-action="CustomerProducts" asp-route-emailCustomer="@UserManager.GetUserName(User)">Вернуться к списку продукций</a>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#summernote').summernote({
+                height: 150,
+                disableDragAndDrop: true,
+                disableResizeEditor: true
+            });
+            $('#summernote').summernote('disable');
+        });
+    </script>
+}

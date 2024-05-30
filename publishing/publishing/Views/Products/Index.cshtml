@@ -1,0 +1,107 @@
+﻿@model IEnumerable<publishing.Models.Product>
+
+@{
+    ViewData["Title"] = "Список продукций";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Список продукций</h1>
+
+@if (Model.Count() > 0)
+{
+    <div class="info">
+        <input id="info__body_1" class="info__switch" type="checkbox">
+        <label for="info__body_1" class="info__headline">Фильтрация данных</label>
+        <div class="info__body">
+            <form method="get" onsubmit="CheckDifferenceBetween2Numbers('startCost','endCost')">
+                <div class="d-flex">
+                    <div class="d-inline-block">
+                        <label>Название: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="text" class="form-control" name="name">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <label>Тип: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="text" name="type" class="form-control">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <label>Заказчик: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="text" name="customer" class="form-control" style="width:300px;">
+                    </div>
+                </div>
+
+                <div class="d-flex" style="margin-top:5px;">
+                    <div class="d-inline-block">
+                        <label>Стоимость: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <label>С: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="number" class="form-control" id="startCost" name="startCost" min="1.00" max="10000000">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <label>По: </label>
+                    </div>
+                    <div class="d-inline-block" style="margin-left:7px;">
+                        <input type="number" class="form-control" id="endCost" name="endCost" min="1.00" max="10000000">
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <input type="submit" value="Поиск" class="btn btn-primary" style="margin-top:5px; width:230px;" />
+                    </div>
+                    <div class="d-inline-block" style="margin-left:10px;">
+                        <a asp-action="Index" class="btn btn-primary" style="margin-top:5px; width:230px;">Сброс</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Cost)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TypeProduct.Type)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Customer.Name)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderBy(m => m.Name))
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Cost)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TypeProduct.Type)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Customer.Name)
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">Подробнее</a>     
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

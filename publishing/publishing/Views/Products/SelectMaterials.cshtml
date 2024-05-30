@@ -1,0 +1,80 @@
+﻿@model IEnumerable<publishing.Models.Material>
+@using publishing.Models.ViewModels;
+
+@{
+    ViewData["Title"] = "Выбор материалов";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Product product = ViewBag.product;
+}
+
+<h1 style="margin-bottom:0;">Выбор материалов</h1>
+<div style="display:flex; margin-top:30px;">
+    <div class="left-menu" style="width:22%;margin-right:40px;">
+        <div class="bg-info mt-3 p-3 text-white" style="border-radius:5px;">
+            <h4>Продукция</h4>
+            <p style="margin:0">Название: <b>@product.Name</b></p>
+            <p style="margin:0">Тип: <b>@product.TypeProduct.Type</b></p>
+        </div>
+        <div class="bg-success mt-3 p-3 text-white" style="margin-top:7px; border-radius:5px;">
+            @if (ViewBag.smallCartModel != null)
+            {
+                SmallCartViewModel smartCartModel = ViewBag.smallCartModel;
+                <h4>Корзина</h4>
+                <p style="margin:0">Количество материалов: <b>@smartCartModel.NumberOfItems</b></p>
+                <p style="margin:0">Общая стоимость: <b>@Math.Round(smartCartModel.TotalAmount,2)₽</b></p>
+                <a asp-controller="Cart" asp-action="IndexMaterials" class="btn btn-primary">Просмотр</a>
+                <a asp-controller="Cart" asp-action="Clear" asp-route-type="material" class="btn btn-primary" style="background-color:red;border-color:red">Очистить</a>
+            }
+            else
+            {
+                <p class="m-0">Ваша корзина пуста</p>    
+            }
+        </div>
+    </div>
+
+    <div class="row" style="width:74%;">
+        <h3 style="margin-left:0; margin-bottom:5px; padding:0;">Материалы</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Type)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Color)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Size)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Cost)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderBy(m => m.Type))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Type)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Color)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Size)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Cost)
+                        </td>
+                        <td>
+                           <a class="btn btn-primary" asp-controller="Cart" asp-action="Add" asp-route-id="@item.Id" asp-route-type="material" style="margin-top:0;">Добавить в корзину</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+

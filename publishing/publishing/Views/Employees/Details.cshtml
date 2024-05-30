@@ -1,0 +1,181 @@
+﻿@model publishing.Models.Employee
+
+@{
+    ViewData["Title"] = "Просмотр сотрудника";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Информация о сотруднике</h1>
+<p style="margin-bottom:0px;">
+    @if (Model.Bookings.Count > 0)
+    {
+        <a asp-action="ReportAboutWork" asp-route-id="@Model.Id">Отчёт о работе сотрудника</a>    
+    }
+</p>
+
+<div style="display:flex">
+    @*<hr style="margin-bottom:0;"/>*@
+    @if (ViewBag.Photodata != null)
+    {   
+        <div style="width:100%; text-align:center;">
+            <img class="mt-4 mb-4" src="data:image/jpeg;base64,@(Convert.ToBase64String(ViewBag.Photodata))" id="cust_img">
+        </div>
+    }
+
+    <dl class="row mt-4" style="margin-left:4px;">
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Surname)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Surname)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Middlename)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Middlename)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Birthday)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Birthday)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Phone)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Phone)
+        </dd>
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-7">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt style="margin-bottom:10px;">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            <textarea asp-for="Description" id="summernote" class="form-control"></textarea>
+        </dd>
+    </dl>
+</div>
+
+<div class="container p-0" style="height:40px;">
+    <div class="row pb-3">
+        <div class="col-md-9">
+            @{
+                if (Model.Bookings.Count != 0){<h4>Заказы</h4>}
+                else{<h4>Заказы отсутствуют</h4>
+                }
+            }
+        </div>
+        <div class="col-md-3 text-end">
+            <a asp-action="LinkEmployeeWithBooking" asp-route-id="@Model.Id" class="btn btn-info" style="margin-top:5px;">Привязать к заказу</a>
+        </div>             
+    </div>
+</div>
+
+@{
+    if (Model.Bookings.Count() != 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().Start)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().End)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().Status)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Bookings.First().Cost)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Bookings.OrderByDescending(b=> b.Id))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Start)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.End)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Cost)
+                        </td>
+                        <td>
+                            <a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.Id">Подробнее</a>                            
+                            @if (item.Status == "Выполняется")
+                            {
+                                <span>| </span>
+                                <a  asp-controller = "Bookings" asp-action="UnpinEmployee" asp-route-bookingId="@item.Id" asp-route-employeeId="@Model.Id" onclick="ConfirmAction('Вы подтверждаете открепление сотрудника @Model.Surname @Model.Name @Model.Middlename от заказа №@item.Id? Если сотрудник является единственным, кто выполняет заказ, то действие будет отменено')">Открепить</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@*//    if (ViewBag.errorMessage != null)
+//    {
+//        ViewData.Clear();
+//        <script type="text/javascript">
+//            window.onload = function () {
+//                alert("@ViewBag.errorMessage");
+//            };
+//        </script>
+//    }
+//}*@
+<div>
+    @if (User.IsInRole("admin"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id">Изменение данных о сотруднике</a>
+        <span>| </span>
+    }
+    <a asp-action="Index">Вернуться к списку сотрудников</a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+        $('#summernote').summernote({
+            height:150,
+            disableDragAndDrop: true,
+            disableResizeEditor: true
+        });
+            $('#summernote').summernote('disable');
+        });
+    </script>
+}
+

@@ -1,0 +1,162 @@
+﻿@model IEnumerable<publishing.Models.Booking>
+@using Microsoft.AspNetCore.Identity
+@using publishing.Areas.Identity.Data
+
+@inject UserManager<publishingUser> UserManager
+
+@{
+    ViewData["Title"] = "Список заказов";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userName = UserManager.GetUserAsync(User).Result.Email;
+}
+
+<h1>Список заказов</h1>
+
+<div style="display:inline"></div>
+<p>
+    <a asp-action="TransitionToSelectProducts" asp-route-bookingId="-1">Создать заказ</a>
+    @if (Model.Where(m=>m.Status == "Выполнен").Count() > 0)
+    {
+        <span>| </span>
+        <a asp-controller="Bookings" asp-action="GetReportAboutCompletedBookings">Отчёт о выполненных заказах</a>
+        <span>| </span>
+        <a asp-controller="Bookings" asp-action="GetReportAboutCostCompletedBookings">Отчёт о расходах</a>
+    }
+</p>
+@{
+    if (Model.Count() > 0)
+    {
+        <div class="info">
+            <input id="info__body_1" class="info__switch" type="checkbox">
+            <label for="info__body_1" class="info__headline">Фильтрация данных</label>
+            <div class="info__body">
+                <form method="get" asp-action="CustomerBookings" onsubmit="CheckDifferenceBetweenStartEndDates(); CheckDifferenceBetween2Numbers('startNumber', 'endNumber'); CheckDifferenceBetween2Numbers('startCost','endCost')">
+                <input type="hidden" name="emailCustomer" value="@userName">
+                    <div class="d-flex">
+                        <div class="d-inline-block">
+                            <label>Стасус: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <select class="form-control form-select" name="status" asp-items="@ViewBag.statuses"></select>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:10px;">
+                            <label>Дата: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <select class="form-control form-select" name="date" asp-items="@ViewBag.dates"></select>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:10px;">
+                            <label>С: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <input type="date" name="startDate" id="datefield" class="form-control" min="2000-01-02" style="width:214px;" />
+                        </div>
+                        <div class="d-inline-block" style="margin-left:10px;">
+                            <label>По: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <input type="date" name="endDate" id="endfield" class="form-control" min="2000-01-02" max="2100-01-01" style="width:214px;" />
+                        </div>
+                        <div class="d-inline-block" style="margin-left:10px;">
+                            <input type="submit" value="Поиск" class="btn btn-primary" style="margin-top:5px;width:200px;" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex" style="margin-top:5px;">
+                        <div class="d-inline-block">
+                            <label>Номер заказа: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <label>С: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <input type="number" class="form-control" name="startNumber" id="startNumber" min="1" max="10000000" oninput="this.value = Math.round(this.value);">
+                        </div>
+                        <div class="d-inline-block" style="margin-left:10px;">
+                            <label>По: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <input type="number" class="form-control" name="endNumber" id="endNumber" min="2" max="10000000" oninput="this.value = Math.round(this.value);">
+                        </div>
+
+                        <div class="d-inline-block" style="margin-left:10px;">
+                            <label>Стоимость заказа: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <label>С: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <input type="number" class="form-control" id="startCost" name="startCost" min="1.00" max="10000000">
+                        </div>
+                        <div class="d-inline-block" style="margin-left:10px;">
+                            <label>По: </label>
+                        </div>
+                        <div class="d-inline-block" style="margin-left:7px;">
+                            <input type="number" class="form-control" id="endCost" name="endCost" min="1.00" max="10000000">
+                        </div>
+                        <div class="d-inline-block" style="margin-left:10px;">
+                            <a asp-action="CustomerBookings" asp-route-emailCustomer="@userName" class="btn btn-primary" style="margin-top:5px; width:200px;">Сброс</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Start)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.End)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Status)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Cost)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderByDescending(m => m.Id))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Start)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.End)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Status)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Cost)
+                        </td>
+                        <td>
+                            @if (item.Status == "Ожидание")
+                            {
+                                <a asp-controller="Customers" asp-action="TransitionToSelectProducts" asp-route-bookingId="@item.Id">Изменить</a>
+                                <span>| </span>
+                                <a asp-controller="Bookings" asp-action="Delete" asp-route-id="@item.Id">Удалить</a> 
+                                <span>| </span>
+                            }
+                            <a asp-controller="Bookings" asp-action="Details" asp-route-id="@item.Id">Подробнее</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+

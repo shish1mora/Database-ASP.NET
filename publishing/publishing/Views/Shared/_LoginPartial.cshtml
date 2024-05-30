@@ -1,0 +1,48 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using publishing.Areas.Identity.Data
+
+@inject SignInManager<publishingUser> SignInManager
+@inject UserManager<publishingUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item dropdown">
+            <a  id="manage" class="nav-link dropdown-toggle" style="color:black" data-bs-toggle="dropdown" aria-expanded="false" asp-area="Identity" asp-page="/Account/Manage/Index">@UserManager.GetUserName(User)</a>
+            <ul class="dropdown-menu">
+                @if (!User.IsInRole("customer"))
+                {
+                    <li><a class="dropdown-item" asp-controller="Bookings" asp-action="Index">Заказы</a></li>
+                    <li><a class="dropdown-item" asp-controller="Customers" asp-action="Index">Заказчики</a></li>
+                    <li><a class="dropdown-item" asp-controller="Materials" asp-action="Index">Материалы</a></li>
+                    <li><a class="dropdown-item" asp-controller="Products" asp-action="Index">Продукции</a></li>
+                    <li><a class="dropdown-item" asp-controller="Employees" asp-action="Index">Сотрудники</a></li>
+                    <li><a class="dropdown-item" asp-controller="PrintingHouses" asp-action="Index">Типографии</a></li>
+                    <li><a class="dropdown-item" asp-controller="TypeProducts" asp-action="Index">Типы продукции</a></li>
+                    @*<li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" asp-controller="BookingProducts" asp-action="Index">Заказы-Продукции</a></li>
+                    <li><a class="dropdown-item" asp-controller="ProductMaterials" asp-action="Index">Продукции-Материалы</a></li>*@
+                }
+                else
+                {
+                    <li><a class="dropdown-item" asp-controller="Customers" asp-action="CustomerBookings" asp-route-emailCustomer="@UserManager.GetUserAsync(User).Result.Email">Заказы</a></li>
+                    <li><a class="dropdown-item" asp-controller="Customers" asp-action="CustomerProducts" asp-route-emailCustomer="@UserManager.GetUserAsync(User).Result.Email">Продукции</a></li>
+                }                
+            </ul>
+    </li>
+    <li class="nav-item">
+        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Выйти</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Регистрация</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Войти</a>
+    </li>
+}
+</ul>

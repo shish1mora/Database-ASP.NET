@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Регистрация заказа";
+}
+
+<h1>Подтверждение регистрации заказа</h1>
+<form asp-action="ConfirmRegistration">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-md-2">Номер заказа:</label>
+            <div class="col-md-10">
+                <label class="control-label col-md-10">@ViewBag.bookingId</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2">Типография:</label>
+            <div class="col-md-10">
+                <label class="control-label col-md-10">@ViewBag.printHouseName</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-md-2">Дата выполнения:</label>
+            <div class="col-md-10">
+                <label class="control-label col-md10">@ViewBag.finishDate</label>
+            </div>
+            <div class="info">
+                <input id="info__body_1" class="info__switch" type="checkbox">
+                <label for="info__body_1" class="info__headline">Показать сотрудников</label>
+                <div class="info__body">
+                    @{
+                        Employee[] employees = ViewBag.employees;
+                        for (int i = 0; i < employees.Length; i++)
+                        {
+                            <input type="hidden" name="employees" value="@employees[i].Id" />
+                            string infoEmployee = $"{employees[i].Surname} {employees[i].Name} {employees[i].Middlename}: {employees[i].Type}";
+                            <label class="control-label col-md-10">@infoEmployee</label>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="hidden" name="bookingId" value="@ViewBag.bookingId" />
+                    <input type="hidden" name="printHouseId" value="@ViewBag.printHouseId" />
+                    <input type="hidden" name="finishDate" value="@ViewBag.finishDate" />
+                    <input type="submit" value="Подтвердить" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+</form>
+

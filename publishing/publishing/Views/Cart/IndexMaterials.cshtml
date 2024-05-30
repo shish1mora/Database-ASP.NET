@@ -1,0 +1,112 @@
+﻿@using publishing.Models.ViewModels;
+
+@model CartViewModel
+
+@{
+    ViewData["Title"] = "Корзина материалов";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    Product product = ViewBag.product;
+    string productName = $"\"{product.Name}\"";
+
+    double totalMaterials = Math.Round(Model.GrandTotal, 2);
+    double totalCost = Math.Round(totalMaterials * ((100 + product.TypeProduct.Margin) / 100),2);
+
+    string nameButtonPrimary = product.Id == 0 ? "Создать" : "Добавить";
+    string message = product.Id == 0 ? $"Вы подтверждаете создание продукции {productName}?" : $"Вы подтверждаете добавление материала(-ов) к продукции {productName}?";
+}
+
+@*<h1>Корзина продукций</h1>*@
+@if (Model.CartItems.Count > 0)
+{
+    <h1>Корзина</h1>
+    <p>
+        <a asp-controller="Products" asp-action="SelectMaterials">Выбор материалов</a>
+    </p>
+    <form asp-action="SetProduct" method="post">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(modelItem=> modelItem.CartItems.First().Material.Type)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(modelItem=> modelItem.CartItems.First().Material.Color)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(modelItem=> modelItem.CartItems.First().Material.Size)
+                    </th>
+                    <th>
+                        Количество
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(modelItem=> modelItem.CartItems.First().Material.Cost)
+                    </th>                    
+                    <th>
+                        Общая стоимость
+                    </th>
+                    <th>
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.CartItems.OrderBy(c => c.Material.Type))
+                {
+                    <tr>
+                        <td>
+                            @item.Material.Type
+                        </td>
+                        <td>
+                            @item.Material.Color
+                        </td>
+                        <td>
+                            @item.Material.Size
+                        </td>
+                        <td>
+                            @item.Quantity
+                        </td>
+                        <td>
+                            @Math.Round(item.Material.Cost,2)₽
+                        </td>
+                        <td>
+                            @Math.Round(Model.CartItems.Where(c=>c.Material.Id == item.Material.Id).Sum(c=>c.Quantity * c.Material.Cost),2)₽
+                        </td>
+                        <td>
+                            <a class="btn btn-primary m-0" asp-action="Add" asp-route-id="@item.Material.Id" asp-route-type="material">+</a>
+                            <a class="btn btn-primary m-0" asp-action="Decrease" asp-route-id="@item.Material.Id" asp-route-type="material" style="background-color:#0dcaf0; border-color:#0dcaf0;">-</a>
+                            <a class="btn btn-primary m-0" asp-action="Remove" asp-route-id="@item.Material.Id" asp-route-type="material" style="background-color:red;border-color:red;">Удалить</a>
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <td class="text-right" colspan="7" style="font-size:20px;font-weight:bold;">Стоимость материалов: @totalMaterials₽</td>
+                </tr>
+                <tr>
+                    <td class="text-right" colspan="7" style="font-size:20px;font-weight:bold;">Итоговая стоимость: @totalCost₽</td>
+                    <input type="hidden" name="totalCost" value="@totalCost">
+                </tr>
+                @*<tr>
+            <td class="text-right" colspan="4">
+            <a class="btn btn-danger" asp-action="Clear">Очистить корзину</a>
+            <a class="btn btn-primary" href="#">Чекаем</a>
+            </td>
+            </tr>*@
+            </tbody>
+        </table>
+
+        @*<p class="text-right">Стоимость продукций: @Model.GrandTotal₽</p>    *@
+        <div style="display:inline">
+            <input type="submit" class="btn btn-primary" value="@nameButtonPrimary" onclick="ConfirmAction('@message')">
+            <a class="btn btn-primary" asp-action="Clear" asp-route-type="material" style="background-color:red;border-color:red;">Очистить корзину</a>
+        </div>
+    </form>
+
+}
+else
+{
+    <h1>Ваша корзина пуста</h1>
+    <p>
+        <a asp-controller="Products" asp-action="SelectMaterials">Выбор материалов</a>
+    </p>
+}
+
